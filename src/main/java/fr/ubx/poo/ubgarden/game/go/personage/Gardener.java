@@ -71,19 +71,24 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
     @Override
     public void update(long now) {
+        long currentTime = System.currentTimeMillis();
+
+        if (diseaseLevel > 1 && currentTime > diseaseEndTime) {
+            diseaseLevel--;
+            diseaseEndTime = currentTime + game.configuration().diseaseDuration();
+            System.out.println("💀 Disease effect ended, new diseaseLevel = " + diseaseLevel);
+        }
+
         if (moveRequested) {
             if (canMove(direction)) {
                 Position nextPos = direction.nextPosition(getPosition());
                 Decor nextDecor = game.world().getGrid().get(nextPos);
 
-                int cost = 1;
-                if (nextDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Dirt)
-                    cost = 2;
-
+                int cost = (nextDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Dirt) ? 2 : 1;
                 int totalCost = cost * diseaseLevel;
                 energy -= totalCost;
 
-                System.out.println("Moved to " + nextPos + ", energy cost: " + totalCost + ", remaining: " + energy);
+                System.out.println("➡️ Moved to " + nextPos + " | Energy cost: " + totalCost + " | Remaining: " + energy);
 
                 move(direction);
                 lastMoveTime = now;
@@ -94,12 +99,14 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
             }
             moveRequested = false;
         } else {
+
             if (now - lastMoveTime >= game.configuration().energyRecoverDuration() * 1_000_000L) {
                 recoverEnergy();
                 lastMoveTime = now;
             }
         }
     }
+
 
     public void recoverEnergy() {
         int maxEnergy = game.configuration().gardenerEnergy();
