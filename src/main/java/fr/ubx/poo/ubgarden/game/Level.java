@@ -67,6 +67,7 @@ public class Level implements Map {
                 }
 
                 decors.put(position, decor);
+
             }
     }
 

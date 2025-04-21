@@ -11,6 +11,8 @@ import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
 import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
+import fr.ubx.poo.ubgarden.game.go.bonus.Bonus;
+
 
 public class Gardener extends GameObject implements Movable, PickupVisitor, WalkVisitor {
 
@@ -29,10 +31,10 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         this.lastMoveTime = System.currentTimeMillis();
     }
 
-    @Override
-    public void pickUp(EnergyBoost energyBoost) {
-        System.out.println("I am taking the boost, I should do something ...");
+    public void pickUp(Bonus bonus) {
+        bonus.applyEffectTo(this);
     }
+
 
     public int getEnergy() {
         return this.energy;
@@ -101,11 +103,10 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
 
     public void recoverEnergy() {
         int maxEnergy = game.configuration().gardenerEnergy();
-        if (energy < maxEnergy) {
-            energy += 1;
-            System.out.println("Recovered 1 energy: now " + energy);
-        }
+        int boost = game.configuration().energyBoost();
+        this.energy = Math.min(this.energy + boost, maxEnergy);
     }
+
 
     public Direction getDirection() {
         return direction;

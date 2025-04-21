@@ -25,6 +25,8 @@ import static fr.ubx.poo.ubgarden.game.view.ImageResource.*;
 public final class SpriteFactory {
 
     public static Sprite create(Pane layer, GameObject gameObject) {
+        if (gameObject == null)
+            throw new RuntimeException("SpriteFactory: gameObject is NULL!");
         ImageResourceFactory factory = ImageResourceFactory.getInstance();
 
         // Terrain décor

@@ -14,4 +14,5 @@ public class InsectBomb extends Bonus {
     public void applyEffectTo(Gardener gardener) {
         gardener.addBomb();
     }
+
 }

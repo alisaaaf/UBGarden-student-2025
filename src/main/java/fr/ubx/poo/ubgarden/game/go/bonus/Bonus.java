@@ -31,6 +31,7 @@ public abstract class Bonus extends GameObject implements Pickupable {
         remove();
     }
 
+
     public abstract void applyEffectTo(Gardener gardener);
 
 }
