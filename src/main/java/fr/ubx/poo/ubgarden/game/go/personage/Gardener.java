@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2020. Laurent Réveillère
- */
-
 package fr.ubx.poo.ubgarden.game.go.personage;
 
 import fr.ubx.poo.ubgarden.game.Direction;
@@ -16,9 +12,6 @@ import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
 import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
 
-
-
-
 public class Gardener extends GameObject implements Movable, PickupVisitor, WalkVisitor {
 
     private int energy;
@@ -27,26 +20,23 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private int diseaseLevel = 1;
     private long diseaseEndTime = 0;
     private int bombCount = 0;
-
+    private long lastMoveTime = 0;
 
     public Gardener(Game game, Position position) {
-
         super(game, position);
         this.direction = Direction.DOWN;
         this.energy = game.configuration().gardenerEnergy();
+        this.lastMoveTime = System.currentTimeMillis();
     }
 
     @Override
     public void pickUp(EnergyBoost energyBoost) {
-
         System.out.println("I am taking the boost, I should do something ...");
-
     }
 
     public int getEnergy() {
         return this.energy;
     }
-
 
     public void requestMove(Direction direction) {
         if (direction != this.direction) {
@@ -64,11 +54,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
             return false;
 
         Decor decor = game.world().getGrid().get(nextPos);
-        if (decor != null && !decor.walkableBy(this)) {
-            return false;
-        }
-
-        return true;
+        return decor == null || decor.walkableBy(this);
     }
 
     @Override
@@ -81,6 +67,7 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         return nextPos;
     }
 
+    @Override
     public void update(long now) {
         if (moveRequested) {
             if (canMove(direction)) {
@@ -97,26 +84,31 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
                 System.out.println("Moved to " + nextPos + ", energy cost: " + totalCost + ", remaining: " + energy);
 
                 move(direction);
+                lastMoveTime = now;
 
                 if (energy <= 0) {
                     die();
                 }
             }
+            moveRequested = false;
+        } else {
+            if (now - lastMoveTime >= game.configuration().energyRecoverDuration() * 1_000_000L) {
+                recoverEnergy();
+                lastMoveTime = now;
+            }
         }
-
-        moveRequested = false;
-    }
-
-
-    public Direction getDirection() {
-        return direction;
     }
 
     public void recoverEnergy() {
         int maxEnergy = game.configuration().gardenerEnergy();
-        int boost = game.configuration().energyBoost();
-        this.energy = Math.min(this.energy + boost, maxEnergy);
-        System.out.println("Energy recovered: " + energy);
+        if (energy < maxEnergy) {
+            energy += 1;
+            System.out.println("Recovered 1 energy: now " + energy);
+        }
+    }
+
+    public Direction getDirection() {
+        return direction;
     }
 
     public void increaseDisease() {
@@ -153,7 +145,4 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     public int getDiseaseLevel() {
         return diseaseLevel;
     }
-
-
-
 }
