@@ -45,4 +45,13 @@ public class Game {
         switchLevelRequested = false;
     }
 
+    public void end(boolean win) {
+        if (win)
+            System.out.println("🏆 You win !");
+        else
+            System.out.println("☠️ You lost...");
+        System.exit(0);
+    }
+
+
 }

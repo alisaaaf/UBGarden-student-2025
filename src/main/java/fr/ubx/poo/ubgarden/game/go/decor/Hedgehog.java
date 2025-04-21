@@ -12,4 +12,10 @@ public class Hedgehog extends Decor {
     public boolean walkableBy(Gardener gardener) {
         return true;
     }
+
+    @Override
+    public void pickUpBy(Gardener gardener) {
+        gardener.win();
+    }
+
 }

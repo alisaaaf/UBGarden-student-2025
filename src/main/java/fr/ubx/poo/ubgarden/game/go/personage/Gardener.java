@@ -29,7 +29,6 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     private int bombCount = 0;
 
 
-
     public Gardener(Game game, Position position) {
 
         super(game, position);
@@ -85,18 +84,29 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     public void update(long now) {
         if (moveRequested) {
             if (canMove(direction)) {
+                Position nextPos = direction.nextPosition(getPosition());
+                Decor nextDecor = game.world().getGrid().get(nextPos);
+
+                int cost = 1;
+                if (nextDecor instanceof fr.ubx.poo.ubgarden.game.go.decor.ground.Dirt)
+                    cost = 2;
+
+                int totalCost = cost * diseaseLevel;
+                energy -= totalCost;
+
+                System.out.println("Moved to " + nextPos + ", energy cost: " + totalCost + ", remaining: " + energy);
+
                 move(direction);
+
+                if (energy <= 0) {
+                    die();
+                }
             }
         }
+
         moveRequested = false;
     }
 
-    public void hurt(int damage) {
-    }
-
-    public void hurt() {
-        hurt(1);
-    }
 
     public Direction getDirection() {
         return direction;
@@ -120,6 +130,29 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
         System.out.println("Collected bomb! Now have: " + bombCount);
     }
 
+    public void win() {
+        game.end(true);
+    }
+
+    public void hurt(int damage) {
+        this.energy -= damage;
+        if (this.energy <= 0) {
+            die();
+        }
+    }
+
+    public void die() {
+        System.out.println("💀 Defeat! The gardener has no more energy.");
+        game.end(false);
+    }
+
+    public int getBombCount() {
+        return bombCount;
+    }
+
+    public int getDiseaseLevel() {
+        return diseaseLevel;
+    }
 
 
 
