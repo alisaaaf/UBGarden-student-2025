@@ -52,4 +52,9 @@ public abstract class GameObject {
     public void remove() {
         deleted = true;
     }
+
+    public Game getGame() {
+        return game;
+    }
+
 }

@@ -146,4 +146,14 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     public int getDiseaseLevel() {
         return diseaseLevel;
     }
+
+    public void resetDisease() {
+        diseaseLevel = 1;
+        diseaseEndTime = 0;
+    }
+
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
 }

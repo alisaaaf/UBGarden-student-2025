@@ -12,7 +12,10 @@ public class EnergyBoost extends Bonus {
 
     @Override
     public void applyEffectTo(Gardener gardener) {
-        gardener.recoverEnergy();
+        int boost = gardener.getGame().configuration().energyBoost();
+        int max = gardener.getGame().configuration().gardenerEnergy();
+        gardener.setEnergy(Math.min(gardener.getEnergy() + boost, max));
+        gardener.resetDisease(); // лечим болезнь
+        System.out.println("🍎 Apple consumed: + " + boost + " energy (max = " + max + ")");
     }
-
 }
