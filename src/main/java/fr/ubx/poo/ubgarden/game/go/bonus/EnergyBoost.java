@@ -15,4 +15,5 @@ public class EnergyBoost extends Bonus {
         gardener.recoverEnergy();
     }
 
+
 }
