@@ -16,8 +16,7 @@ public class SpriteGardener extends Sprite {
         super(layer, null, gardener);
         updateImage();
     }
-
-    @Override
+    
     public void updateImage() {
         Gardener gardener = (Gardener) getGameObject();
         Image image = getImage(gardener.getDirection());

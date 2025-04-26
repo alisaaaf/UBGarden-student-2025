@@ -1,7 +1,10 @@
 package fr.ubx.poo.ubgarden.game;
 
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
-
+import fr.ubx.poo.ubgarden.game.go.decor.special.ClosedDoor;
+import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
+import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 
 public class Game {
 
@@ -10,6 +13,9 @@ public class Game {
     private final Gardener gardener;
     private boolean switchLevelRequested = false;
     private int switchLevel;
+    private int carrotCount = 0;
+    private int carrotTotal = 0;
+
     public Game(World world, Configuration configuration, Position gardenerPosition) {
         this.configuration = configuration;
         this.world = world;
@@ -21,7 +27,7 @@ public class Game {
     }
 
     public Gardener getGardener() {
-        return this.gardener;
+        return gardener;
     }
 
     public World world() {
@@ -52,6 +58,34 @@ public class Game {
             System.out.println("☠️ You lost...");
         System.exit(0);
     }
+
+    public void initCarrots() {
+        this.carrotTotal = (int) world.getGrid().values().stream()
+                .map(Decor::getBonus)
+                .filter(bonus -> bonus instanceof Carrots)
+                .count();
+        System.out.println("🌱 Total carrots to collect: " + carrotTotal);
+    }
+
+    public void addCarrot() {
+        carrotCount++;
+        System.out.println("🥕 Carrot collected! Total: " + carrotCount + " / " + carrotTotal);
+
+        if (carrotCount == carrotTotal) {
+            System.out.println("✅ All carrots collected! Opening doors...");
+            world.getGrid().values().stream()
+                    .filter(decor -> decor instanceof ClosedDoor)
+                    .map(decor -> (ClosedDoor) decor)
+                    .forEach(closedDoor -> {
+                        Position pos = closedDoor.getPosition();
+                        OpenedDoor open = new OpenedDoor(pos);
+                        world.getGrid().put(pos, open);
+                        open.setModified(true);
+                        System.out.println("🚪 Door opened at " + pos);
+                    });
+        }
+    }
+
 
 
 }

@@ -1,17 +1,14 @@
 package fr.ubx.poo.ubgarden.game;
 
-import fr.ubx.poo.ubgarden.game.go.bonus.EnergyBoost;
-import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
-import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
+import fr.ubx.poo.ubgarden.game.go.bonus.*;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.decor.Tree;
-import fr.ubx.poo.ubgarden.game.go.decor.Carrots;
 import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
-import fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
 import fr.ubx.poo.ubgarden.game.go.decor.ground.Dirt;
+import fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
 import fr.ubx.poo.ubgarden.game.go.decor.special.ClosedDoor;
-import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
 import fr.ubx.poo.ubgarden.game.go.decor.special.Flowers;
+import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
 import fr.ubx.poo.ubgarden.game.go.decor.nest.WaspNest;
 import fr.ubx.poo.ubgarden.game.go.decor.nest.HornetNest;
 import fr.ubx.poo.ubgarden.game.launcher.MapEntity;
@@ -25,7 +22,6 @@ public class Level implements Map {
     private final int level;
     private final int width;
     private final int height;
-
     private final java.util.Map<Position, Decor> decors = new HashMap<>();
 
     public Level(Game game, int level, MapLevel entities) {
@@ -33,7 +29,7 @@ public class Level implements Map {
         this.width = entities.width();
         this.height = entities.height();
 
-        for (int i = 0; i < width; i++)
+        for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 Position position = new Position(level, i, j);
                 MapEntity mapEntity = entities.get(i, j);
@@ -44,7 +40,10 @@ public class Level implements Map {
                     case Dirt -> decor = new Dirt(position);
                     case Tree -> decor = new Tree(position);
                     case Flowers -> decor = new Flowers(position);
-                    case Carrot -> decor = new Carrots(position);
+                    case Carrot -> {
+                        decor = new Grass(position);
+                        decor.setBonus(new Carrots(position, decor));
+                    }
                     case Hedgehog -> decor = new Hedgehog(position);
                     case ClosedDoor -> decor = new ClosedDoor(position);
                     case OpenedDoor -> decor = new OpenedDoor(position);
@@ -67,24 +66,26 @@ public class Level implements Map {
                 }
 
                 decors.put(position, decor);
-
             }
+        }
     }
 
     @Override
     public int width() {
-        return this.width;
+        return width;
     }
 
     @Override
     public int height() {
-        return this.height;
+        return height;
     }
 
+    @Override
     public Decor get(Position position) {
         return decors.get(position);
     }
 
+    @Override
     public Collection<Decor> values() {
         return decors.values();
     }
@@ -92,5 +93,10 @@ public class Level implements Map {
     @Override
     public boolean inside(Position position) {
         return position.x() >= 0 && position.x() < width && position.y() >= 0 && position.y() < height;
+    }
+
+    @Override
+    public void put(Position position, Decor decor) {
+        decors.put(position, decor);
     }
 }

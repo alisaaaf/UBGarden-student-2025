@@ -1,7 +1,3 @@
-/*
- * Copyright (c) 2020. Laurent Réveillère
- */
-
 package fr.ubx.poo.ubgarden.game.view;
 
 import fr.ubx.poo.ubgarden.game.Position;
@@ -24,47 +20,50 @@ public class Sprite {
         this.layer = layer;
         this.image = image;
         this.gameObject = gameObject;
+        this.imageView = new ImageView(image);
+        this.imageView.setFitWidth(size);
+        this.imageView.setFitHeight(size);
+        this.imageView.setX(getPosition().x() * size);
+        this.imageView.setY(getPosition().y() * size);
+        layer.getChildren().add(imageView);
     }
 
     public GameObject getGameObject() {
         return gameObject;
     }
 
-    public final void setImage(Image image, Effect effect) {
-        if (this.image == null || this.image != image || this.effect != effect) {
-            this.image = image;
-            this.effect = effect;
-        }
-    }
-
-    public final void setImage(Image image) {
-        setImage(image, null);
-    }
-
-    public void updateImage() {
+    public ImageView getImageView() {
+        return imageView;
     }
 
     public Position getPosition() {
         return getGameObject().getPosition();
     }
 
-    public final void render() {
-        if (gameObject.isModified()) {
-            if (imageView != null) {
-                remove();
-            }
-            updateImage();
-            imageView = new ImageView(this.image);
-            imageView.setEffect(effect);
-            imageView.setX(getPosition().x() * size);
-            imageView.setY(getPosition().y() * size);
-            layer.getChildren().add(imageView);
-            gameObject.setModified(false);
+    public void setImage(Image image) {
+        this.image = image;
+        if (imageView != null) {
+            imageView.setImage(image);
         }
     }
 
-    public final void remove() {
-        layer.getChildren().remove(imageView);
-        imageView = null;
+    public void remove() {
+        if (imageView != null) {
+            layer.getChildren().remove(imageView);
+            imageView = null;
+        }
+    }
+
+    public void render() {
+        if (gameObject.isModified()) {
+            remove();
+            this.imageView = new ImageView(this.image);
+            this.imageView.setFitWidth(size);
+            this.imageView.setFitHeight(size);
+            this.imageView.setX(getPosition().x() * size);
+            this.imageView.setY(getPosition().y() * size);
+            layer.getChildren().add(imageView);
+            gameObject.setModified(false);
+        }
     }
 }

@@ -15,4 +15,7 @@ public interface Map {
     Collection<Decor> values();
 
     boolean inside(Position nextPos);
+
+    void put(Position position, Decor decor);
+
 }
