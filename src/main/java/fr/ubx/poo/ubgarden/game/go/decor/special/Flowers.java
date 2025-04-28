@@ -16,9 +16,10 @@ public class Flowers extends Decor {
         return false;
     }
 
-    public boolean walkableBy(Enemy enemy) {
+    public boolean walkableByEnemy() {
         return true;
     }
+
 
     @Override
     public void pickUpBy(Gardener gardener) {

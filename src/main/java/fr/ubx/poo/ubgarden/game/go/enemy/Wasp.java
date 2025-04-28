@@ -7,7 +7,7 @@ import fr.ubx.poo.ubgarden.game.Position;
 public class Wasp extends Enemy {
 
     public Wasp(Game game, Position position, Direction direction) {
-        super(game, position, direction);
+        super(game, position, direction,500);
     }
 
     @Override

@@ -8,7 +8,7 @@ public class Hornet extends Enemy {
     private int hitPoints = 2;
 
     public Hornet(Game game, Position position, Direction direction) {
-        super(game, position, direction);
+        super(game, position, direction,1000);
     }
 
     @Override
