@@ -1,10 +1,14 @@
 package fr.ubx.poo.ubgarden.game;
 
+import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.go.decor.special.ClosedDoor;
 import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class Game {
 
@@ -15,12 +19,26 @@ public class Game {
     private int switchLevel;
     private int carrotCount = 0;
     private int carrotTotal = 0;
+    private final List<Enemy> enemies = new ArrayList<>();
+    public List<Enemy> getEnemies() {
+        return enemies;
+    }
 
+    public void addEnemy(Enemy enemy) {
+        enemies.add(enemy);
+        enemy.setModified(true);
+    }
+
+    public void removeEnemy(Enemy enemy) {
+        enemies.remove(enemy);
+    }
     public Game(World world, Configuration configuration, Position gardenerPosition) {
         this.configuration = configuration;
         this.world = world;
         gardener = new Gardener(this, gardenerPosition);
     }
+
+
 
     public Configuration configuration() {
         return configuration;
@@ -58,6 +76,7 @@ public class Game {
             System.out.println("☠️ You lost...");
         System.exit(0);
     }
+
 
     public void initCarrots() {
         this.carrotTotal = (int) world.getGrid().values().stream()

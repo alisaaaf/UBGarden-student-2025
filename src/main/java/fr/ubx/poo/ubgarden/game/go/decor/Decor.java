@@ -13,11 +13,7 @@ public abstract class Decor extends GameObject implements Walkable, Pickupable {
 
     public Decor(Position position) {
         super(position);
-    }
 
-    public Decor(Position position, Bonus bonus) {
-        super(position);
-        this.bonus = bonus;
     }
 
     public Bonus getBonus() {
@@ -30,8 +26,10 @@ public abstract class Decor extends GameObject implements Walkable, Pickupable {
 
     @Override
     public boolean walkableBy(Gardener gardener) {
-        return gardener.canWalkOn(this);
+        // Si gardener est null, on considère que c'est walkable pour les ennemis
+        return gardener == null || gardener.canWalkOn(this);
     }
+
 
     @Override
     public void update(long now) {

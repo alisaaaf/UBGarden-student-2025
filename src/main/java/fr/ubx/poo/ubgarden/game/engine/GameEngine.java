@@ -3,6 +3,7 @@ package fr.ubx.poo.ubgarden.game.engine;
 import fr.ubx.poo.ubgarden.game.Direction;
 import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.go.GameObject;
+import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.view.ImageResource;
 import fr.ubx.poo.ubgarden.game.view.Sprite;
@@ -27,13 +28,14 @@ public final class GameEngine {
     private final Game game;
     private final Gardener gardener;
     private final List<Sprite> sprites = new LinkedList<>();
+    private final Map<Enemy, Sprite> enemySprites = new HashMap<>();
     private final Set<Sprite> cleanUpSprites = new HashSet<>();
     private final Scene scene;
+    private StatusBar statusBar;
     private final Pane rootPane = new Pane();
     private final Group root = new Group();
     private final Pane layer = new Pane();
     private Input input;
-    private StatusBar statusBar;
 
     public GameEngine(Game game, Scene scene) {
         this.game = game;
@@ -63,17 +65,46 @@ public final class GameEngine {
         rootPane.setPrefSize(sceneWidth, sceneHeight + StatusBar.height);
         rootPane.getChildren().add(root);
 
-        sprites.clear();
+        // Create sprites
         for (var decor : game.world().getGrid().values()) {
             sprites.add(SpriteFactory.create(layer, decor));
-            if (decor.getBonus() != null) {
-                sprites.add(SpriteFactory.create(layer, decor.getBonus())); // <-- ВАЖНО: добавляем бонусы отдельно
+            decor.setModified(true);
+            var bonus = decor.getBonus();
+            if (bonus != null) {
+                sprites.add(SpriteFactory.create(layer, bonus));
+                bonus.setModified(true);
             }
         }
+
+        // Create sprites for existing enemies
+        for (Enemy enemy : game.getEnemies()) {
+            Sprite sprite = SpriteFactory.create(layer, enemy);
+            enemySprites.put(enemy, sprite);
+        }
+
         sprites.add(new SpriteGardener(layer, gardener));
         resizeScene(sceneWidth, sceneHeight);
     }
 
+    private void updateEnemySprites() {
+        // Remove sprites for deleted enemies
+        enemySprites.keySet().removeIf(enemy -> {
+            if (enemy.isDeleted() || !game.getEnemies().contains(enemy)) {
+                Sprite sprite = enemySprites.get(enemy);
+                sprite.remove();
+                return true;
+            }
+            return false;
+        });
+
+        // Add sprites for new enemies
+        for (Enemy enemy : game.getEnemies()) {
+            if (!enemySprites.containsKey(enemy)) {
+                Sprite sprite = SpriteFactory.create(layer, enemy);
+                enemySprites.put(enemy, sprite);
+            }
+        }
+    }
 
     private void buildAndSetGameLoop() {
         gameLoop = new AnimationTimer() {
@@ -81,6 +112,7 @@ public final class GameEngine {
                 checkLevel();
                 processInput();
                 update(now);
+                checkCollision();
                 cleanupSprites();
                 render();
                 statusBar.update(game);
@@ -89,7 +121,13 @@ public final class GameEngine {
     }
 
     private void checkLevel() {
-        // Not used yet
+        if (game.isSwitchLevelRequested()) {
+            // Level switching logic
+        }
+    }
+
+    private void checkCollision() {
+        // Check collisions between gardener and enemies
     }
 
     private void processInput() {
@@ -111,22 +149,56 @@ public final class GameEngine {
 
     private void update(long now) {
         game.world().getGrid().values().forEach(decor -> decor.update(now));
-        gardener.update(now);
-    }
 
-    private void cleanupSprites() {
-        Iterator<Sprite> iterator = sprites.iterator();
-        while (iterator.hasNext()) {
-            Sprite sprite = iterator.next();
-            if (sprite.getGameObject().isDeleted()) {
-                sprite.remove();
-                iterator.remove();
+        // Update enemies
+        for (Enemy enemy : new ArrayList<>(game.getEnemies())) {
+            enemy.update(now);
+            if (enemy.isDeleted()) {
+                game.removeEnemy(enemy);
             }
         }
+
+        updateEnemySprites();
+        gardener.update(now);
+
+        if (gardener.getEnergy() < 0) {
+            gameLoop.stop();
+            showMessage("Perdu!", Color.RED);
+        }
+    }
+
+    private void showMessage(String msg, Color color) {
+        Text message = new Text(msg);
+        message.setTextAlignment(TextAlignment.CENTER);
+        message.setFont(new Font(60));
+        message.setFill(color);
+
+        StackPane pane = new StackPane(message);
+        pane.setPrefSize(rootPane.getWidth(), rootPane.getHeight());
+        rootPane.getChildren().clear();
+        rootPane.getChildren().add(pane);
+
+        new AnimationTimer() {
+            public void handle(long now) {
+                processInput();
+            }
+        }.start();
+    }
+
+    public void cleanupSprites() {
+        sprites.forEach(sprite -> {
+            if (sprite.getGameObject().isDeleted()) {
+                cleanUpSprites.add(sprite);
+            }
+        });
+        cleanUpSprites.forEach(Sprite::remove);
+        sprites.removeAll(cleanUpSprites);
+        cleanUpSprites.clear();
     }
 
     private void render() {
         sprites.forEach(Sprite::render);
+        enemySprites.values().forEach(Sprite::render);
     }
 
     public void start() {
@@ -139,3 +211,4 @@ public final class GameEngine {
         Platform.runLater(() -> scene.getWindow().sizeToScene());
     }
 }
+
