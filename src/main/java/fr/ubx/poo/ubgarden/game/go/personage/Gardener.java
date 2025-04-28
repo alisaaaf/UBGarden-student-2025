@@ -12,6 +12,9 @@ import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
 import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
 import fr.ubx.poo.ubgarden.game.go.bonus.Bonus;
+import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
+import fr.ubx.poo.ubgarden.game.go.enemy.Hornet;
+import fr.ubx.poo.ubgarden.game.go.enemy.Wasp;
 
 
 public class Gardener extends GameObject implements Movable, PickupVisitor, WalkVisitor {
@@ -128,6 +131,35 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     public void addBomb() {
         bombCount++;
         System.out.println("Collected bomb! Now have: " + bombCount);
+    }
+    public void useBombIfNeeded() {
+        if (bombCount <= 0) return;
+
+        // Vérifier si un ennemi est adjacent
+        for (Enemy enemy : game.getEnemies()) {
+            if (isAdjacent(getPosition(), enemy.getPosition())) {
+                if (enemy instanceof Wasp) {
+                    enemy.onBombHit();
+                    bombCount--;
+                    System.out.println("💣 Used bomb on wasp! Bombs left: " + bombCount);
+                    return;
+                } else if (enemy instanceof Hornet) {
+                    if (bombCount >= 2) {
+                        enemy.onBombHit();
+                        enemy.onBombHit(); // Deux coups pour un frelon
+                        bombCount -= 2;
+                        System.out.println("💣💣 Used two bombs on hornet! Bombs left: " + bombCount);
+                        return;
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean isAdjacent(Position pos1, Position pos2) {
+        int dx = Math.abs(pos1.x() - pos2.x());
+        int dy = Math.abs(pos1.y() - pos2.y());
+        return (dx <= 1 && dy <= 1) && (dx + dy > 0);
     }
 
     public void win() {

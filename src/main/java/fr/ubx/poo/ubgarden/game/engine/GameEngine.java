@@ -2,7 +2,11 @@ package fr.ubx.poo.ubgarden.game.engine;
 
 import fr.ubx.poo.ubgarden.game.Direction;
 import fr.ubx.poo.ubgarden.game.Game;
+import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.GameObject;
+import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
+import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
 import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 import fr.ubx.poo.ubgarden.game.view.ImageResource;
@@ -125,9 +129,36 @@ public final class GameEngine {
             // Level switching logic
         }
     }
-
     private void checkCollision() {
-        // Check collisions between gardener and enemies
+        Position gardenerPos = gardener.getPosition();
+
+        // Vérifier les collisions avec les ennemis
+        for (Enemy enemy : new ArrayList<>(game.getEnemies())) {
+            if (enemy.getPosition().equals(gardenerPos)) {
+                gardener.hurt(enemy.stingDamage());
+                if (enemy.isDeadAfterSting()) {
+                    enemy.remove();
+                    game.removeEnemy(enemy);
+                }
+            }
+
+            // Vérifier si l'ennemi marche sur une bombe
+            Decor decor = game.world().getGrid().get(enemy.getPosition());
+            if (decor != null && decor.getBonus() instanceof InsectBomb) {
+                enemy.onBombHit();
+                decor.setBonus(null);
+                decor.setModified(true);
+                if (enemy.isDeleted()) {
+                    game.removeEnemy(enemy);
+                }
+            }
+        }
+
+        // Vérifier la victoire (hérisson)
+        Decor decor = game.world().getGrid().get(gardenerPos);
+        if (decor instanceof Hedgehog) {
+            game.end(true);
+        }
     }
 
     private void processInput() {
@@ -157,7 +188,8 @@ public final class GameEngine {
                 game.removeEnemy(enemy);
             }
         }
-
+        gardener.useBombIfNeeded();
+        checkCollision();
         updateEnemySprites();
         gardener.update(now);
 
@@ -199,6 +231,13 @@ public final class GameEngine {
     private void render() {
         sprites.forEach(Sprite::render);
         enemySprites.values().forEach(Sprite::render);
+        game.world().getGrid().values().forEach(decor -> {
+            if (decor.isModified() && decor.getBonus() != null) {
+                Sprite sprite = SpriteFactory.create(layer, decor.getBonus());
+                sprites.add(sprite);
+                decor.setModified(false);
+            }
+        });
     }
 
     public void start() {
