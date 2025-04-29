@@ -11,16 +11,16 @@ public class Hornet extends Enemy {
         super(game, position, direction,1000);
     }
 
-    @Override
-    public boolean canMove(Direction direction) {
-        return true;
-    }
+
 
     @Override
     public Position move(Direction direction) {
-        Position nextPos = direction.nextPosition(getPosition());
-        setPosition(nextPos);
-        return nextPos;
+        if (canMove(direction)) {
+            Position nextPos = direction.nextPosition(getPosition());
+            setPosition(nextPos);
+            return nextPos;
+        }
+        return getPosition();
     }
 
     @Override

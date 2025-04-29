@@ -83,7 +83,7 @@ public abstract class Nest extends Decor {
             Position pos = direction.nextPosition(getPosition());
             if (game.world().getGrid().inside(pos)) {
                 Decor decor = game.world().getGrid().get(pos);
-                if (decor != null && decor.walkableBy(null)) {
+                if (decor != null && decor.walkableBy((Enemy) null)) {
                     return pos;
                 }
             }

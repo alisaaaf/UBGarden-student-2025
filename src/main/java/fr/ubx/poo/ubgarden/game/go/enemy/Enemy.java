@@ -7,6 +7,7 @@ import fr.ubx.poo.ubgarden.game.engine.Timer;
 import fr.ubx.poo.ubgarden.game.go.GameObject;
 import fr.ubx.poo.ubgarden.game.go.Movable;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.decor.special.Door;
 import fr.ubx.poo.ubgarden.game.go.decor.special.Flowers;
 
 public abstract class Enemy extends GameObject implements Movable {
@@ -37,9 +38,18 @@ public abstract class Enemy extends GameObject implements Movable {
 
     protected void moveRandomly() {
         Direction newDirection = Direction.random();
+        setDirection(newDirection); // Mettre à jour la direction visuelle
+
         if (canMove(newDirection)) {
-            setDirection(newDirection);
             move(newDirection);
+        } else {
+            // Choisir une autre direction si bloqué
+            for (Direction dir : Direction.values()) {
+                if (canMove(dir)) {
+                    move(dir);
+                    break;
+                }
+            }
         }
     }
     @Override
@@ -56,11 +66,8 @@ public abstract class Enemy extends GameObject implements Movable {
             return true;
         }
 
-        if (decor instanceof Flowers) {
-            return ((Flowers) decor).walkableByEnemy();
-        }
-
-        return decor.walkableBy(null);
+        // Utilisez la nouvelle méthode walkableBy(Enemy)
+        return decor.walkableBy(this);
     }
 
     public void setDirection(Direction direction) {

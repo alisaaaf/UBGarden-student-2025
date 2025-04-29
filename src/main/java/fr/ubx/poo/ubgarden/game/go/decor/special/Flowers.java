@@ -23,6 +23,6 @@ public class Flowers extends Decor {
 
     @Override
     public void pickUpBy(Gardener gardener) {
-        // Aucun bonus à ramasser ici
+
     }
 }

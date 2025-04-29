@@ -10,16 +10,15 @@ public class Wasp extends Enemy {
         super(game, position, direction,500);
     }
 
-    @Override
-    public boolean canMove(Direction direction) {
-        return true; // à adapter
-    }
 
     @Override
     public Position move(Direction direction) {
-        Position nextPos = direction.nextPosition(getPosition());
-        setPosition(nextPos);
-        return nextPos;
+        if (canMove(direction)) {
+            Position nextPos = direction.nextPosition(getPosition());
+            setPosition(nextPos);
+            return nextPos;
+        }
+        return getPosition();
     }
 
     @Override
