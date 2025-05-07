@@ -19,7 +19,7 @@ public abstract class Nest extends Decor {
     private Timer spawnTimer;
 
     public Nest(Position position, Game game) {
-        super(position);
+        super(game,position);
         this.game = game;
         startSpawning();
     }
@@ -40,8 +40,8 @@ public abstract class Nest extends Decor {
         for (int i = 0; i < count; i++) {
             Position bombPos = findRandomEmptyPosition();
             if (bombPos != null) {
-                Grass grass = new Grass(bombPos);
-                grass.setBonus(new InsectBomb(bombPos, grass));
+                Grass grass = new Grass(game,bombPos);
+                grass.setBonus(new InsectBomb(game,bombPos, grass));
                 game.world().getGrid().put(bombPos, grass);
                 grass.setModified(true);
             }

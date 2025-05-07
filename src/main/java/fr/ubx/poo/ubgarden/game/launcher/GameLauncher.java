@@ -2,7 +2,15 @@ package fr.ubx.poo.ubgarden.game.launcher;
 
 import fr.ubx.poo.ubgarden.game.*;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.decor.ground.Grass;
+import fr.ubx.poo.ubgarden.game.go.decor.ground.Dirt;
+import fr.ubx.poo.ubgarden.game.go.decor.Tree;
+import fr.ubx.poo.ubgarden.game.go.decor.Hedgehog;
 import fr.ubx.poo.ubgarden.game.go.decor.special.ClosedDoor;
+import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
+import fr.ubx.poo.ubgarden.game.go.decor.nest.HornetNest;
+import fr.ubx.poo.ubgarden.game.go.decor.nest.WaspNest;
+import fr.ubx.poo.ubgarden.game.go.bonus.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -10,11 +18,14 @@ import java.util.Properties;
 
 public class GameLauncher {
 
-    private GameLauncher() {
-    }
+    private GameLauncher() {}
 
     public static GameLauncher getInstance() {
         return LoadSingleton.INSTANCE;
+    }
+
+    private static class LoadSingleton {
+        static final GameLauncher INSTANCE = new GameLauncher();
     }
 
     private int integerProperty(Properties properties, String name, int defaultValue) {
@@ -37,10 +48,9 @@ public class GameLauncher {
         return loadMultiLevel();
     }
 
-
     public Game loadFromFile(File file) {
         try {
-            MapLevel mapLevel = new MapLevelFromFile(file);
+            MapLevel mapLevel = new MapLevelFromFile(file, 1);
             Configuration config = getConfiguration(new Properties());
             World world = new World(1);
             Position gardenerPos = mapLevel.getGardenerPosition();
@@ -49,40 +59,23 @@ public class GameLauncher {
             Game game = new Game(world, config, gardenerPos);
             Map level = new Level(game, 1, mapLevel);
             world.put(1, level);
-
             game.initCarrots();
-
             return game;
         } catch (IOException e) {
             throw new RuntimeException("Failed to load map from file", e);
         }
     }
 
-
-    private static class LoadSingleton {
-        static final GameLauncher INSTANCE = new GameLauncher();
-    }
-
     public Game loadMultiLevel() {
-        Properties emptyConfig = new Properties();
-        Configuration configuration = getConfiguration(emptyConfig);
-        World world = new World(2); // 2 niveaux
+        Configuration configuration = getConfiguration(new Properties());
+        World world = new World(2); // Deux niveaux
 
         // Niveau 1
         MapLevel mapLevel1 = new MapLevelDefaultStart();
         Position gardenerPosition = mapLevel1.getGardenerPosition();
         Game game = new Game(world, configuration, gardenerPosition);
 
-        // Important: créer le niveau 1 avec la bonne porte
-        Level level1 = new Level(game, 1, mapLevel1) {
-            @Override
-            protected Decor createDecor(Position position, MapEntity mapEntity) {
-                if (mapEntity == MapEntity.ClosedDoor) {
-                    return new ClosedDoor(position, 2); // Bien spécifier le niveau cible
-                }
-                return super.createDecor(position, mapEntity);
-            }
-        };
+        Level level1 = new Level(game, 1, mapLevel1);
         world.put(1, level1);
 
         // Niveau 2
@@ -93,5 +86,4 @@ public class GameLauncher {
         game.initCarrots();
         return game;
     }
-
 }

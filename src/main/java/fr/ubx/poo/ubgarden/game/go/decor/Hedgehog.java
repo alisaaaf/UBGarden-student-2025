@@ -1,11 +1,12 @@
 package fr.ubx.poo.ubgarden.game.go.decor;
+import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 
 import fr.ubx.poo.ubgarden.game.Position;
 
 public class Hedgehog extends Decor {
-    public Hedgehog(Position position) {
-        super(position);
+    public Hedgehog(Game game, Position position) {
+        super(game,position);
     }
 
     @Override
@@ -15,8 +16,11 @@ public class Hedgehog extends Decor {
 
     @Override
     public void pickUpBy(Gardener gardener) {
-        System.out.println("Hedgehog found! Victory!");
-        gardener.win(); // Appel direct à la victoire
-        this.remove();
+        if (!isDeleted()) {
+            System.out.println("Hedgehog found! Victory!");
+            gardener.win(); // Déclenche la victoire
+            this.remove(); // Supprime le hérisson
+            gardener.getGame().end(true); // Termine le jeu avec victoire
+        }
     }
 }

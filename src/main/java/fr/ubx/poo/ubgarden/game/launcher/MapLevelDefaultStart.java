@@ -1,8 +1,5 @@
 package fr.ubx.poo.ubgarden.game.launcher;
 
-import fr.ubx.poo.ubgarden.game.Position;
-
-
 import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.*;
 
 public class MapLevelDefaultStart extends MapLevel {
@@ -20,10 +17,9 @@ public class MapLevelDefaultStart extends MapLevel {
     };
 
     public MapLevelDefaultStart() {
-        super(width, height);
+        super(1, width, height);
         for (int i = 0; i < width; i++)
             for (int j = 0; j < height; j++)
                 set(i, j, level1[j][i]);
     }
-
 }
