@@ -4,8 +4,6 @@
 
 package fr.ubx.poo.ubgarden.game.go.bonus;
 
-import fr.ubx.poo.ubgarden.game.Game;
-import fr.ubx.poo.ubgarden.game.Level;
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.GameObject;
 import fr.ubx.poo.ubgarden.game.go.Pickupable;
@@ -16,8 +14,8 @@ public abstract class Bonus extends GameObject implements Pickupable {
 
     private final Decor decor;
 
-    public Bonus(Game game, Position position, Decor decor) {
-        super(game, position);
+    public Bonus(Position position, Decor decor) {
+        super(position);
         this.decor = decor;
     }
 
@@ -25,9 +23,6 @@ public abstract class Bonus extends GameObject implements Pickupable {
     public void remove() {
         super.remove();
         decor.setBonus(null);
-        if (game.world().getGrid() instanceof Level level) {
-            level.markItemAsCollected(getPosition());
-        }
     }
 
     @Override

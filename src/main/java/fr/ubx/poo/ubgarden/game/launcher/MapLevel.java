@@ -7,16 +7,14 @@ import static fr.ubx.poo.ubgarden.game.launcher.MapEntity.Grass;
 
 public class MapLevel {
 
-    private final int level; // 🆕 Niveau associé à la carte
     private final int width;
     private final int height;
     private final MapEntity[][] grid;
 
+
     private Position gardenerPosition = null;
 
-    // 🆕 Nouveau constructeur avec niveau explicite
-    public MapLevel(int level, int width, int height) {
-        this.level = level;
+    public MapLevel(int width, int height) {
         this.width = width;
         this.height = height;
         this.grid = new MapEntity[height][width];
@@ -28,10 +26,6 @@ public class MapLevel {
 
     public int height() {
         return height;
-    }
-
-    public int getLevel() {
-        return level;
     }
 
     public MapEntity get(int i, int j) {
@@ -49,9 +43,10 @@ public class MapLevel {
                     if (gardenerPosition != null)
                         throw new RuntimeException("Multiple definition of gardener");
                     set(i, j, Grass);
-                    // ✅ Utilise le vrai niveau de la carte
-                    gardenerPosition = new Position(level, i, j);
+                    // Gardener can be only on level 1
+                    gardenerPosition = new Position(1, i, j);
                 }
         return gardenerPosition;
     }
+
 }

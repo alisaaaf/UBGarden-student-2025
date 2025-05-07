@@ -127,44 +127,31 @@ public final class GameEngine {
         if (game.isSwitchLevelRequested()) {
             game.saveCurrentLevelState();
             int newLevel = game.getSwitchLevel();
-
-            // Charger le nouvel état ou initialiser
+            if (game.world().getGrid(newLevel) == null) {
+                return;
+            }
+            game.world().setCurrentLevel(newLevel);
             LevelState savedState = game.getLevelState(newLevel);
             if (savedState != null) {
-                ((Level)game.world().getGrid(newLevel)).applyState(savedState);
+                ((Level)game.world().getGrid()).applyState(savedState);
             } else {
-                ((Level)game.world().getGrid(newLevel)).initializeNests();
                 game.initCarrots();
             }
-
-            game.world().setCurrentLevel(newLevel);
-            initialize(); // Réinitialiser l'affichage
+            for (Decor decor : game.world().getGrid().values()) {
+                if (decor.getBonus() != null) {
+                    decor.getBonus().setModified(true);
+                }
+            }
+            initialize();
             game.clearSwitchLevel();
         }
     }
 
+
     private void checkCollision() {
         Position gardenerPos = gardener.getPosition();
-        Decor decor = game.world().getGrid().get(gardenerPos);
 
-        if (decor == null) return;
-
-        // Vérifier le hérisson en premier
-        if (decor instanceof Hedgehog) {
-            decor.pickUpBy(gardener); // Cela doit appeler win() dans Hedgehog
-            return;
-        }
-
-        // Vérifier les bonus
-        if (decor.getBonus() != null) {
-            decor.getBonus().pickUpBy(gardener);
-            decor.setBonus(null);
-            decor.setModified(true);
-            // Important: mettre à jour la grille
-            game.world().getGrid().put(gardenerPos, decor);
-        }
-
-        // Vérifier les ennemis
+        // Vérifier les collisions avec les ennemis
         for (Enemy enemy : new ArrayList<>(game.getEnemies())) {
             if (enemy.getPosition().equals(gardenerPos)) {
                 gardener.hurt(enemy.stingDamage());
@@ -173,6 +160,23 @@ public final class GameEngine {
                     game.removeEnemy(enemy);
                 }
             }
+
+            // Vérifier si l'ennemi marche sur une bombe
+            Decor decor = game.world().getGrid().get(enemy.getPosition());
+            if (decor != null && decor.getBonus() instanceof InsectBomb) {
+                enemy.onBombHit();
+                decor.setBonus(null);
+                decor.setModified(true);
+                if (enemy.isDeleted()) {
+                    game.removeEnemy(enemy);
+                }
+            }
+        }
+
+        // Vérifier la victoire (hérisson)
+        Decor decor = game.world().getGrid().get(gardenerPos);
+        if (decor instanceof Hedgehog) {
+            game.end(true); // Victoire immédiate
         }
     }
 
@@ -203,11 +207,8 @@ public final class GameEngine {
                 game.removeEnemy(enemy);
             }
         }
-
-        // Gestion des collisions
-        checkCollision();
-
         gardener.useBombIfNeeded();
+        checkCollision();
         updateEnemySprites();
         gardener.update(now);
 
@@ -247,16 +248,19 @@ public final class GameEngine {
     }
 
     private void render() {
+
         sprites.forEach(Sprite::render);
         enemySprites.values().forEach(Sprite::render);
-        game.world().getGrid().values().forEach(decor -> {
-            if (decor.isModified() && decor.getBonus() != null) {
-                Sprite sprite = SpriteFactory.create(layer, decor.getBonus());
-                sprites.add(sprite);
-                decor.setModified(false);
+
+        for (Decor decor : game.world().getGrid().values()) {
+            if (decor.getBonus() != null && decor.getBonus().isModified()) {
+                Sprite bonusSprite = SpriteFactory.create(layer, decor.getBonus());
+                sprites.add(bonusSprite);
+                decor.getBonus().setModified(false);
             }
-        });
+        }
     }
+
 
     public void start() {
         gameLoop.start();
