@@ -12,9 +12,9 @@ import fr.ubx.poo.ubgarden.game.go.decor.special.Flowers;
 
 public abstract class Enemy extends GameObject implements Movable {
 
-    private Direction direction;
+
     private Timer moveTimer;
-    private int moveDelay;
+    private int moveDelay; private Direction direction;
 
     public Enemy(Game game, Position position, Direction direction,int moveDelay) {
         super(game, position);

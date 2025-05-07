@@ -7,8 +7,8 @@ import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.bonus.Carrots;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
+import java.util.Map;
 
 public class Game {
 
@@ -23,11 +23,13 @@ public class Game {
     public List<Enemy> getEnemies() {
         return enemies;
     }
+    private final Map<Integer, LevelState> levelStates = new HashMap<>();
 
     public void addEnemy(Enemy enemy) {
         enemies.add(enemy);
         enemy.setModified(true);
     }
+
 
     public void removeEnemy(Enemy enemy) {
         enemies.remove(enemy);
@@ -37,8 +39,6 @@ public class Game {
         this.world = world;
         gardener = new Gardener(this, gardenerPosition);
     }
-
-
 
     public Configuration configuration() {
         return configuration;
@@ -71,17 +71,21 @@ public class Game {
     }
 
     public void end(boolean win) {
-        if (win)
+        if (win) {
             System.out.println("🏆 You win !");
-        else
+
+        } else {
             System.out.println("☠️ You lost...");
+        }
         System.exit(0);
     }
 
 
     public void initCarrots() {
         this.carrotTotal = (int) world.getGrid().values().stream()
+                .filter(Objects::nonNull) // Ajout de ce filtre
                 .map(Decor::getBonus)
+                .filter(Objects::nonNull) // Et celui-ci
                 .filter(bonus -> bonus instanceof Carrots)
                 .count();
         System.out.println("🌱 Total carrots to collect: " + carrotTotal);
@@ -91,19 +95,40 @@ public class Game {
         carrotCount++;
         System.out.println("🥕 Carrot collected! Total: " + carrotCount + " / " + carrotTotal);
 
-        if (carrotCount == carrotTotal) {
+        if (carrotCount >= carrotTotal) {  // Changé == en >= pour plus de sécurité
             System.out.println("✅ All carrots collected! Opening doors...");
-            world.getGrid().values().stream()
-                    .filter(decor -> decor instanceof ClosedDoor)
-                    .map(decor -> (ClosedDoor) decor)
-                    .forEach(closedDoor -> {
-                        Position pos = closedDoor.getPosition();
-                        OpenedDoor open = new OpenedDoor(pos);
-                        world.getGrid().put(pos, open);
-                        open.setModified(true);
-                        System.out.println("🚪 Door opened at " + pos);
-                    });
+            openAllDoorsInCurrentLevel();
         }
+    }
+
+    private void openAllDoorsInCurrentLevel() {
+        for (Decor decor : world.getGrid().values()) {
+            if (decor instanceof ClosedDoor) {
+                Position pos = decor.getPosition();
+                // Créer une nouvelle porte ouverte vers le même niveau cible
+                OpenedDoor openDoor = new OpenedDoor(pos, ((ClosedDoor)decor).getTargetLevel());
+                world.getGrid().put(pos, openDoor);
+                openDoor.setModified(true);
+                System.out.println("🚪 Door opened at " + pos + " leading to level " + openDoor.getTargetLevel());
+            }
+        }
+    }
+
+
+    public void saveCurrentLevelState() {
+        if (world.getGrid() instanceof Level) {
+            Level currentLevel = (Level) world.getGrid();
+            LevelState state = currentLevel.createCurrentState();
+            levelStates.put(world.currentLevel(), state);
+        }
+    }
+
+    public LevelState getLevelState(int level) {
+        return levelStates.getOrDefault(level, new LevelState());
+    }
+
+    public void clearLevelState(int level) {
+        levelStates.remove(level);
     }
 
 

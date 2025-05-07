@@ -1,6 +1,8 @@
 package fr.ubx.poo.ubgarden.game.launcher;
 
 import fr.ubx.poo.ubgarden.game.*;
+import fr.ubx.poo.ubgarden.game.go.decor.Decor;
+import fr.ubx.poo.ubgarden.game.go.decor.special.ClosedDoor;
 
 import java.io.File;
 import java.io.IOException;
@@ -32,20 +34,7 @@ public class GameLauncher {
     }
 
     public Game load() {
-        Properties emptyConfig = new Properties();
-        MapLevel mapLevel = new MapLevelDefaultStart();
-        Position gardenerPosition = mapLevel.getGardenerPosition();
-        if (gardenerPosition == null)
-            throw new RuntimeException("Gardener not found");
-        Configuration configuration = getConfiguration(emptyConfig);
-        World world = new World(1);
-        Game game = new Game(world, configuration, gardenerPosition);
-        Map level = new Level(game, 1, mapLevel);
-        world.put(1, level);
-
-        game.initCarrots();
-
-        return game;
+        return loadMultiLevel();
     }
 
 
@@ -73,4 +62,36 @@ public class GameLauncher {
     private static class LoadSingleton {
         static final GameLauncher INSTANCE = new GameLauncher();
     }
+
+    public Game loadMultiLevel() {
+        Properties emptyConfig = new Properties();
+        Configuration configuration = getConfiguration(emptyConfig);
+        World world = new World(2); // 2 niveaux
+
+        // Niveau 1
+        MapLevel mapLevel1 = new MapLevelDefaultStart();
+        Position gardenerPosition = mapLevel1.getGardenerPosition();
+        Game game = new Game(world, configuration, gardenerPosition);
+
+        // Important: créer le niveau 1 avec la bonne porte
+        Level level1 = new Level(game, 1, mapLevel1) {
+            @Override
+            protected Decor createDecor(Position position, MapEntity mapEntity) {
+                if (mapEntity == MapEntity.ClosedDoor) {
+                    return new ClosedDoor(position, 2); // Bien spécifier le niveau cible
+                }
+                return super.createDecor(position, mapEntity);
+            }
+        };
+        world.put(1, level1);
+
+        // Niveau 2
+        MapLevel mapLevel2 = new MapLevelSecondGarden();
+        Level level2 = new Level(game, 2, mapLevel2);
+        world.put(2, level2);
+
+        game.initCarrots();
+        return game;
+    }
+
 }

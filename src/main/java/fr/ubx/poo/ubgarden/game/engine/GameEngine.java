@@ -1,8 +1,6 @@
 package fr.ubx.poo.ubgarden.game.engine;
 
-import fr.ubx.poo.ubgarden.game.Direction;
-import fr.ubx.poo.ubgarden.game.Game;
-import fr.ubx.poo.ubgarden.game.Position;
+import fr.ubx.poo.ubgarden.game.*;
 import fr.ubx.poo.ubgarden.game.go.GameObject;
 import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
@@ -25,6 +23,7 @@ import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
 
 import java.util.*;
+import java.util.Map;
 
 public final class GameEngine {
 
@@ -126,9 +125,38 @@ public final class GameEngine {
 
     private void checkLevel() {
         if (game.isSwitchLevelRequested()) {
-            // Level switching logic
+            System.out.println("Attempting to switch to level " + game.getSwitchLevel());
+
+            // Sauvegarder l'état actuel
+            game.saveCurrentLevelState();
+
+            int newLevel = game.getSwitchLevel();
+            System.out.println("Current world levels: " + game.world().grids.keySet());
+
+            // Vérifier que le niveau existe
+            if (game.world().getGrid(newLevel) == null) {
+                System.err.println("Level " + newLevel + " doesn't exist in world!");
+                return;
+            }
+
+            // Changer de niveau
+            game.world().setCurrentLevel(newLevel);
+
+            // Charger l'état sauvegardé ou initialiser un nouvel état
+            LevelState savedState = game.getLevelState(newLevel);
+            if (savedState != null) {
+                ((Level)game.world().getGrid()).applyState(savedState);
+            } else {
+                // Initialiser les carottes pour un nouveau niveau
+                game.initCarrots();
+            }
+
+            // Réinitialiser l'affichage
+            initialize();
+            game.clearSwitchLevel();
         }
     }
+
     private void checkCollision() {
         Position gardenerPos = gardener.getPosition();
 
@@ -157,7 +185,7 @@ public final class GameEngine {
         // Vérifier la victoire (hérisson)
         Decor decor = game.world().getGrid().get(gardenerPos);
         if (decor instanceof Hedgehog) {
-            game.end(true);
+            game.end(true); // Victoire immédiate
         }
     }
 

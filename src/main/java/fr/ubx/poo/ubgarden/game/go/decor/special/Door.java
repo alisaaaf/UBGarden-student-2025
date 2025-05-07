@@ -2,12 +2,18 @@ package fr.ubx.poo.ubgarden.game.go.decor.special;
 
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
-import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 
 public abstract class Door extends Decor {
-    public Door(Position position) {
+    private final int targetLevel;
+
+    public Door(Position position, int targetLevel) {
         super(position);
+        this.targetLevel = targetLevel;
+    }
+
+    public int getTargetLevel() {
+        return targetLevel;
     }
 
     public abstract boolean isOpen();
@@ -18,7 +24,12 @@ public abstract class Door extends Decor {
     }
 
     @Override
-    public boolean walkableBy(Enemy enemy) {
-        return false;
+    public void pickUpBy(Gardener gardener) {
+        if (isOpen()) {
+            System.out.println("Entering door to level " + targetLevel);
+            gardener.getGame().requestSwitchLevel(targetLevel);
+        } else {
+            System.out.println("Door is locked! Collect all carrots first.");
+        }
     }
 }
