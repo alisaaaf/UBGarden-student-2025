@@ -17,7 +17,8 @@ Le projet suit une architecture orientée objet avec une séparation claire des 
 - **Affichage** : `Sprite`, `GameEngine`, etc.
 - **Configuration du monde** : Cartes, bonus, ennemis, etc.
 
-### Modifications clés
+
+### Modifications clé
 1. **Héritage et polymorphisme**
     - Les bonus (pommes, carottes, bombes) héritent de la classe abstraite `Bonus` et implémentent l'interface `Pickupable`.
     - Mécanisme de double dispatch pour appliquer les effets spécifiques sans logique conditionnelle.
