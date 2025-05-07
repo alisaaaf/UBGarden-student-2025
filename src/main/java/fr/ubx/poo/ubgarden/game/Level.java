@@ -40,60 +40,68 @@ public class Level implements Map {
                 MapEntity mapEntity = entities.get(i, j);
                 Decor decor = createDecor(position, mapEntity);
                 decors.put(position, decor);
+
+                // Pour le niveau 2, vérifier le hérisson
+                if (level == 2 && decor instanceof Hedgehog) {
+                    System.out.println("Hedgehog placed at " + position);
+                }
             }
         }
-        if (level == 2) {
-            System.out.println("Level 2 initialized with " + decors.size() + " decors");
-        }
 
-        // Initialisation des nids après création de tous les décors
         initializeNests();
     }
 
     protected Decor createDecor(Position position, MapEntity mapEntity) {
+        Grass ground = new Grass(game, position); // Par défaut, le sol est de l'herbe
+
         switch (mapEntity) {
             case Grass:
-                return new Grass(position);
+                return ground;
             case Dirt:
-                return new Dirt(position);
+                return new Dirt(game, position);
             case Tree:
-                return new Tree(position);
+                return new Tree(game, position);
             case Flowers:
-                return new Flowers(position);
-            case Carrot:
-                Grass grassWithCarrot = new Grass(position);
-                grassWithCarrot.setBonus(new Carrots(position, grassWithCarrot));
+                return new Flowers(game, position);
+            case Carrot: {
+                Grass grassWithCarrot = new Grass(game, position);
+                grassWithCarrot.setBonus(new Carrots(game, position, grassWithCarrot));
                 return grassWithCarrot;
-            case Hedgehog:
-                return new Hedgehog(position);
+            }
+            case Apple: {
+                Grass grassWithApple = new Grass(game, position);
+                grassWithApple.setBonus(new EnergyBoost(game, position, grassWithApple));
+                return grassWithApple;
+            }
+            case PoisonedApple: {
+                Grass grassWithPoisonedApple = new Grass(game, position);
+                grassWithPoisonedApple.setBonus(new PoisonedApple(game, position, grassWithPoisonedApple));
+                return grassWithPoisonedApple;
+            }
+            case InsectBomb: {
+                Grass grassWithBomb = new Grass(game, position);
+                grassWithBomb.setBonus(new InsectBomb(game, position, grassWithBomb));
+                return grassWithBomb;
+            }
             case ClosedDoor:
-                return new ClosedDoor(position, 2); // 2 = niveau cible
+                return new ClosedDoor(game, position, 2);
             case OpenedDoor:
-                return new OpenedDoor(position, 1);
+                return new OpenedDoor(game, position, 1);
             case WaspNest:
                 return new WaspNest(position, game);
             case HornetNest:
                 return new HornetNest(position, game);
-            case Apple:
-                Grass grassWithApple = new Grass(position);
-                grassWithApple.setBonus(new EnergyBoost(position, grassWithApple));
-                return grassWithApple;
-            case PoisonedApple:
-                Grass grassWithPoisonedApple = new Grass(position);
-                grassWithPoisonedApple.setBonus(new PoisonedApple(position, grassWithPoisonedApple));
-                return grassWithPoisonedApple;
-            case InsectBomb:
-                Grass grassWithBomb = new Grass(position);
-                grassWithBomb.setBonus(new InsectBomb(position, grassWithBomb));
-                return grassWithBomb;
             case Gardener:
-                return new Grass(position);
+                return ground;
+            case Hedgehog:
+                return new Hedgehog(game, position);
             default:
                 throw new RuntimeException("EntityCode " + mapEntity.name() + " not processed");
         }
     }
 
-    private void initializeNests() {
+
+    public void initializeNests() {
         for (Decor decor : decors.values()) {
             if (decor instanceof Nest nest) {
                 // Démarrer le spawn périodique

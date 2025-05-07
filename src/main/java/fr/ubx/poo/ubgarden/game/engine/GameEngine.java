@@ -125,42 +125,46 @@ public final class GameEngine {
 
     private void checkLevel() {
         if (game.isSwitchLevelRequested()) {
-            System.out.println("Attempting to switch to level " + game.getSwitchLevel());
-
-            // Sauvegarder l'état actuel
             game.saveCurrentLevelState();
-
             int newLevel = game.getSwitchLevel();
-            System.out.println("Current world levels: " + game.world().grids.keySet());
 
-            // Vérifier que le niveau existe
-            if (game.world().getGrid(newLevel) == null) {
-                System.err.println("Level " + newLevel + " doesn't exist in world!");
-                return;
-            }
-
-            // Changer de niveau
-            game.world().setCurrentLevel(newLevel);
-
-            // Charger l'état sauvegardé ou initialiser un nouvel état
+            // Charger le nouvel état ou initialiser
             LevelState savedState = game.getLevelState(newLevel);
             if (savedState != null) {
-                ((Level)game.world().getGrid()).applyState(savedState);
+                ((Level)game.world().getGrid(newLevel)).applyState(savedState);
             } else {
-                // Initialiser les carottes pour un nouveau niveau
+                ((Level)game.world().getGrid(newLevel)).initializeNests();
                 game.initCarrots();
             }
 
-            // Réinitialiser l'affichage
-            initialize();
+            game.world().setCurrentLevel(newLevel);
+            initialize(); // Réinitialiser l'affichage
             game.clearSwitchLevel();
         }
     }
 
     private void checkCollision() {
         Position gardenerPos = gardener.getPosition();
+        Decor decor = game.world().getGrid().get(gardenerPos);
 
-        // Vérifier les collisions avec les ennemis
+        if (decor == null) return;
+
+        // Vérifier le hérisson en premier
+        if (decor instanceof Hedgehog) {
+            decor.pickUpBy(gardener); // Cela doit appeler win() dans Hedgehog
+            return;
+        }
+
+        // Vérifier les bonus
+        if (decor.getBonus() != null) {
+            decor.getBonus().pickUpBy(gardener);
+            decor.setBonus(null);
+            decor.setModified(true);
+            // Important: mettre à jour la grille
+            game.world().getGrid().put(gardenerPos, decor);
+        }
+
+        // Vérifier les ennemis
         for (Enemy enemy : new ArrayList<>(game.getEnemies())) {
             if (enemy.getPosition().equals(gardenerPos)) {
                 gardener.hurt(enemy.stingDamage());
@@ -169,23 +173,6 @@ public final class GameEngine {
                     game.removeEnemy(enemy);
                 }
             }
-
-            // Vérifier si l'ennemi marche sur une bombe
-            Decor decor = game.world().getGrid().get(enemy.getPosition());
-            if (decor != null && decor.getBonus() instanceof InsectBomb) {
-                enemy.onBombHit();
-                decor.setBonus(null);
-                decor.setModified(true);
-                if (enemy.isDeleted()) {
-                    game.removeEnemy(enemy);
-                }
-            }
-        }
-
-        // Vérifier la victoire (hérisson)
-        Decor decor = game.world().getGrid().get(gardenerPos);
-        if (decor instanceof Hedgehog) {
-            game.end(true); // Victoire immédiate
         }
     }
 
@@ -216,8 +203,11 @@ public final class GameEngine {
                 game.removeEnemy(enemy);
             }
         }
-        gardener.useBombIfNeeded();
+
+        // Gestion des collisions
         checkCollision();
+
+        gardener.useBombIfNeeded();
         updateEnemySprites();
         gardener.update(now);
 
