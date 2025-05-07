@@ -47,7 +47,7 @@ public class Level implements Map {
         }
 
         // Initialisation des nids après création de tous les décors
-        initializeNests();
+        initializeNests(true);
     }
 
     protected Decor createDecor(Position position, MapEntity mapEntity) {
@@ -90,20 +90,20 @@ public class Level implements Map {
         }
     }
 
-    private void initializeNests() {
+    public void initializeNests(boolean spawnInitial) {
         for (Decor decor : decors.values()) {
             if (decor instanceof Nest nest) {
-                // Démarrer le spawn périodique
                 nest.startSpawning();
-
-                // Spawn initial immédiat
-                Platform.runLater(() -> {
-                    try {
-                        nest.spawnEnemy();
-                    } catch (Exception e) {
-                        System.err.println("Error spawning enemy: " + e.getMessage());
-                    }
-                });
+                if (spawnInitial) {
+                    Platform.runLater(() -> {
+                        try {
+                            nest.spawnEnemy();
+                            System.out.println("Enemy spawned from nest at " + nest.getPosition());
+                        } catch (Exception e) {
+                            System.err.println("Error spawning enemy: " + e.getMessage());
+                        }
+                    });
+                }
             }
         }
     }

@@ -65,12 +65,18 @@ public abstract class Nest extends Decor {
     }
 
     public void spawnEnemy() {
+        if (!game.world().getGrid().inside(getPosition())) {
+            return; // Sécurité
+        }
+
         Position spawnPos = findSpawnPosition();
         if (spawnPos != null) {
-            Enemy enemy = createEnemy(spawnPos); // Méthode abstraite à implémenter
+            Enemy enemy = createEnemy(spawnPos);
             game.addEnemy(enemy);
             System.out.println(getEnemyType() + " spawned at " + spawnPos);
-            spawnBombs(getBombCount()); // Appel ajouté ici
+            spawnBombs(getBombCount());
+        } else {
+            System.out.println("Could not find spawn position for nest at " + getPosition());
         }
     }
 

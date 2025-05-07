@@ -18,36 +18,49 @@ import javafx.scene.text.Text;
 public class StatusBar {
     public static final int height = 55;
     private final HBox level = new HBox();
+    private int currentLevel = 1;
+    private final ImageView levelDigit;
 
     private final Text energy = new Text();
-
     private final Text diseaseLevel = new Text();
-
     private final Text insecticideNumber = new Text();
-    private final int gameLevel = 1;
     private final DropShadow ds = new DropShadow();
 
-
     public StatusBar(Group root, int sceneWidth, int sceneHeight) {
-        // Status bar
+        // Initialize level display
+        levelDigit = new ImageView(ImageResourceFactory.getInstance().getDigit(1));
         level.getStyleClass().add("level");
-        level.getChildren().add(new ImageView(ImageResourceFactory.getInstance().getDigit(gameLevel)));
+        level.getChildren().add(levelDigit);
 
+        // Initialize drop shadow effect
         ds.setRadius(5.0);
         ds.setOffsetX(3.0);
         ds.setOffsetY(3.0);
         ds.setColor(Color.color(0.5f, 0.5f, 0.5f));
 
-
+        // Create status groups
         HBox status = new HBox();
         status.getStyleClass().add("status");
-        HBox insecticideStatus = statusGroup(ImageResourceFactory.getInstance().get(ImageResource.INSECTICIDE), insecticideNumber);
-        HBox energyStatus = statusGroup(ImageResourceFactory.getInstance().get(ImageResource.ENERGY), energy);
-        HBox diseaseLevelStatus = statusGroup(ImageResourceFactory.getInstance().get(ImageResource.POISONED_APPLE), diseaseLevel);
+
+        HBox insecticideStatus = statusGroup(
+                ImageResourceFactory.getInstance().get(ImageResource.INSECTICIDE),
+                insecticideNumber
+        );
+
+        HBox energyStatus = statusGroup(
+                ImageResourceFactory.getInstance().get(ImageResource.ENERGY),
+                energy
+        );
+
+        HBox diseaseLevelStatus = statusGroup(
+                ImageResourceFactory.getInstance().get(ImageResource.POISONED_APPLE),
+                diseaseLevel
+        );
 
         status.setSpacing(40.0);
         status.getChildren().addAll(diseaseLevelStatus, insecticideStatus, energyStatus);
 
+        // Create main status bar container
         HBox hBox = new HBox();
         hBox.getChildren().addAll(level, status);
         hBox.getStyleClass().add("statusBar");
@@ -57,9 +70,9 @@ public class StatusBar {
     }
 
     private void updateLevel(int n) {
-        if (n != gameLevel) {
-            level.getChildren().clear();
-            level.getChildren().add(new ImageView(ImageResourceFactory.getInstance().getDigit(n)));
+        if (n != currentLevel) {
+            currentLevel = n;
+            levelDigit.setImage(ImageResourceFactory.getInstance().getDigit(n));
         }
     }
 
@@ -76,10 +89,9 @@ public class StatusBar {
     }
 
     public void update(Game game) {
+        updateLevel(game.world().currentLevel());
         insecticideNumber.setText("x" + game.getGardener().getBombCount());
         diseaseLevel.setText("x" + game.getGardener().getDiseaseLevel());
         energy.setText(String.valueOf(game.getGardener().getEnergy()));
     }
-
-
 }

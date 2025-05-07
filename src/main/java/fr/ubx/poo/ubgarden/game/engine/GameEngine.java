@@ -127,21 +127,22 @@ public final class GameEngine {
         if (game.isSwitchLevelRequested()) {
             game.saveCurrentLevelState();
             int newLevel = game.getSwitchLevel();
+
             if (game.world().getGrid(newLevel) == null) {
                 return;
             }
+
             game.world().setCurrentLevel(newLevel);
             LevelState savedState = game.getLevelState(newLevel);
+
             if (savedState != null) {
                 ((Level)game.world().getGrid()).applyState(savedState);
             } else {
+                // Pour un nouveau niveau, initialiser les nids
+                ((Level)game.world().getGrid()).initializeNests(true);
                 game.initCarrots();
             }
-            for (Decor decor : game.world().getGrid().values()) {
-                if (decor.getBonus() != null) {
-                    decor.getBonus().setModified(true);
-                }
-            }
+
             initialize();
             game.clearSwitchLevel();
         }
@@ -216,6 +217,7 @@ public final class GameEngine {
             gameLoop.stop();
             showMessage("Perdu!", Color.RED);
         }
+        statusBar.update(game);
     }
 
     private void showMessage(String msg, Color color) {
