@@ -1,6 +1,5 @@
 package fr.ubx.poo.ubgarden.game.go.decor.special;
 
-import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
@@ -8,8 +7,8 @@ import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 public abstract class Door extends Decor {
     private final int targetLevel;
 
-    public Door(Game game, Position position, int targetLevel) {
-        super(game,position);
+    public Door(Position position, int targetLevel) {
+        super(position);
         this.targetLevel = targetLevel;
     }
 

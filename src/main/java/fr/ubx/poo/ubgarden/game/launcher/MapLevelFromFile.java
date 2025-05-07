@@ -4,9 +4,8 @@ import java.io.*;
 import java.util.*;
 
 public class MapLevelFromFile extends MapLevel {
-
-    public MapLevelFromFile(File file, int level) throws IOException {
-        super(level, 0, 0); // 🆗 Dimensions temporaires, mais niveau réel passé ici
+    public MapLevelFromFile(File file) throws IOException {
+        super(0, 0); // Dimensions temporaires
 
         List<String> lines = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
@@ -19,13 +18,12 @@ public class MapLevelFromFile extends MapLevel {
             }
         }
 
+        // Détermine les dimensions
         int height = lines.size();
         int width = lines.get(0).replace(" ", "").length();
-
-        // 🛠️ Injection dynamique des vraies dimensions et grille
         MapLevelSetter.set(this, width, height, new MapEntity[height][width]);
 
-        // Remplir la grille avec les entités
+        // Remplissage de la grille
         for (int y = 0; y < height; y++) {
             String line = lines.get(y).replace(" ", "");
             for (int x = 0; x < width; x++) {
