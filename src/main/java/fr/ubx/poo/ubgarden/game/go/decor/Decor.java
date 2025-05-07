@@ -1,5 +1,6 @@
 package fr.ubx.poo.ubgarden.game.go.decor;
 
+import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.GameObject;
 import fr.ubx.poo.ubgarden.game.go.Pickupable;
@@ -11,9 +12,8 @@ public abstract class Decor extends GameObject implements Walkable, Pickupable {
 
     private Bonus bonus;
 
-    public Decor(Position position) {
-        super(position);
-
+    public Decor(Game game, Position position) {
+        super(game, position);
     }
 
     public Bonus getBonus() {

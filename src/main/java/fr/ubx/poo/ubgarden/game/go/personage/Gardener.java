@@ -12,6 +12,7 @@ import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.bonus.PoisonedApple;
 import fr.ubx.poo.ubgarden.game.go.bonus.InsectBomb;
 import fr.ubx.poo.ubgarden.game.go.bonus.Bonus;
+import fr.ubx.poo.ubgarden.game.go.decor.special.OpenedDoor;
 import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
 import fr.ubx.poo.ubgarden.game.go.enemy.Hornet;
 import fr.ubx.poo.ubgarden.game.go.enemy.Wasp;
@@ -52,16 +53,26 @@ public class Gardener extends GameObject implements Movable, PickupVisitor, Walk
     }
 
     @Override
-    public final boolean canMove(Direction direction) {
+    public boolean canMove(Direction direction) {
         Position nextPos = direction.nextPosition(getPosition());
 
         if (!game.world().getGrid().inside(nextPos))
             return false;
 
         Decor decor = game.world().getGrid().get(nextPos);
-        return decor == null || decor.walkableBy(this);
-    }
 
+        if (decor == null)
+            return true;
+
+        // Gestion spéciale des portes
+        if (decor instanceof OpenedDoor) {
+            int targetLevel = ((OpenedDoor) decor).getTargetLevel();
+            game.requestSwitchLevel(targetLevel);
+            return true;
+        }
+
+        return decor.walkableBy(this); // Utilise walkableBy pour vérifier si franchissable
+    }
     @Override
     public Position move(Direction direction) {
         Position nextPos = direction.nextPosition(getPosition());

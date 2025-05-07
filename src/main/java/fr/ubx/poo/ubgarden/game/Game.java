@@ -95,7 +95,7 @@ public class Game {
         carrotCount++;
         System.out.println("🥕 Carrot collected! Total: " + carrotCount + " / " + carrotTotal);
 
-        if (carrotCount >= carrotTotal) {  // Changé == en >= pour plus de sécurité
+        if (carrotCount >= carrotTotal) {
             System.out.println("✅ All carrots collected! Opening doors...");
             openAllDoorsInCurrentLevel();
         }
@@ -105,11 +105,11 @@ public class Game {
         for (Decor decor : world.getGrid().values()) {
             if (decor instanceof ClosedDoor) {
                 Position pos = decor.getPosition();
-                // Créer une nouvelle porte ouverte vers le même niveau cible
-                OpenedDoor openDoor = new OpenedDoor(pos, ((ClosedDoor)decor).getTargetLevel());
+                int targetLevel = ((ClosedDoor) decor).getTargetLevel();
+                OpenedDoor openDoor = new OpenedDoor(this, pos, targetLevel); // ✅ game ajouté
                 world.getGrid().put(pos, openDoor);
                 openDoor.setModified(true);
-                System.out.println("🚪 Door opened at " + pos + " leading to level " + openDoor.getTargetLevel());
+                System.out.println("🚪 Door opened at " + pos);
             }
         }
     }

@@ -1,5 +1,6 @@
 package fr.ubx.poo.ubgarden.game.go.decor.special;
 
+import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.enemy.Enemy;
@@ -7,8 +8,8 @@ import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 
 public class Flowers extends Decor {
 
-    public Flowers(Position position) {
-        super(position);
+    public Flowers(Game game, Position position) {
+        super(game,position);
     }
 
     @Override

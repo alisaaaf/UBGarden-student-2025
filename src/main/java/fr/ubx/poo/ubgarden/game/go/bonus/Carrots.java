@@ -1,13 +1,14 @@
 package fr.ubx.poo.ubgarden.game.go.bonus;
 
+import fr.ubx.poo.ubgarden.game.Game;
 import fr.ubx.poo.ubgarden.game.Position;
 import fr.ubx.poo.ubgarden.game.go.decor.Decor;
 import fr.ubx.poo.ubgarden.game.go.personage.Gardener;
 
 public class Carrots extends Bonus {
 
-    public Carrots(Position position, Decor decor) {
-        super(position, decor);
+    public Carrots(Game game, Position position, Decor decor) {
+        super(game, position, decor);
     }
 
     @Override
