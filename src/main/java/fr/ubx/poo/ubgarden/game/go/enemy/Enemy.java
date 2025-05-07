@@ -14,12 +14,12 @@ public abstract class Enemy extends GameObject implements Movable {
 
 
     private Timer moveTimer;
-    private int moveDelay; private Direction direction;
+     private Direction direction;
 
     public Enemy(Game game, Position position, Direction direction,int moveDelay) {
         super(game, position);
         this.direction = direction;
-        this.moveDelay = moveDelay;
+
         this.moveTimer = new Timer(moveDelay);
         setModified(true);
     }
@@ -43,7 +43,6 @@ public abstract class Enemy extends GameObject implements Movable {
         if (canMove(newDirection)) {
             move(newDirection);
         } else {
-            // Choisir une autre direction si bloqué
             for (Direction dir : Direction.values()) {
                 if (canMove(dir)) {
                     move(dir);
@@ -66,7 +65,6 @@ public abstract class Enemy extends GameObject implements Movable {
             return true;
         }
 
-        // Utilisez la nouvelle méthode walkableBy(Enemy)
         return decor.walkableBy(this);
     }
 

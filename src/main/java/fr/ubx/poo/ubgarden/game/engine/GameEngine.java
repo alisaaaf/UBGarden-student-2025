@@ -68,7 +68,7 @@ public final class GameEngine {
         rootPane.setPrefSize(sceneWidth, sceneHeight + StatusBar.height);
         rootPane.getChildren().add(root);
 
-        // Create sprites
+
         for (var decor : game.world().getGrid().values()) {
             sprites.add(SpriteFactory.create(layer, decor));
             decor.setModified(true);
@@ -79,7 +79,6 @@ public final class GameEngine {
             }
         }
 
-        // Create sprites for existing enemies
         for (Enemy enemy : game.getEnemies()) {
             Sprite sprite = SpriteFactory.create(layer, enemy);
             enemySprites.put(enemy, sprite);
@@ -90,7 +89,6 @@ public final class GameEngine {
     }
 
     private void updateEnemySprites() {
-        // Remove sprites for deleted enemies
         enemySprites.keySet().removeIf(enemy -> {
             if (enemy.isDeleted() || !game.getEnemies().contains(enemy)) {
                 Sprite sprite = enemySprites.get(enemy);
@@ -100,7 +98,6 @@ public final class GameEngine {
             return false;
         });
 
-        // Add sprites for new enemies
         for (Enemy enemy : game.getEnemies()) {
             if (!enemySprites.containsKey(enemy)) {
                 Sprite sprite = SpriteFactory.create(layer, enemy);
@@ -138,7 +135,7 @@ public final class GameEngine {
             if (savedState != null) {
                 ((Level)game.world().getGrid()).applyState(savedState);
             } else {
-                // Pour un nouveau niveau, initialiser les nids
+
                 ((Level)game.world().getGrid()).initializeNests(true);
                 game.initCarrots();
             }
@@ -152,7 +149,6 @@ public final class GameEngine {
     private void checkCollision() {
         Position gardenerPos = gardener.getPosition();
 
-        // Vérifier les collisions avec les ennemis
         for (Enemy enemy : new ArrayList<>(game.getEnemies())) {
             if (enemy.getPosition().equals(gardenerPos)) {
                 gardener.hurt(enemy.stingDamage());
@@ -162,7 +158,6 @@ public final class GameEngine {
                 }
             }
 
-            // Vérifier si l'ennemi marche sur une bombe
             Decor decor = game.world().getGrid().get(enemy.getPosition());
             if (decor != null && decor.getBonus() instanceof InsectBomb) {
                 enemy.onBombHit();
@@ -174,7 +169,6 @@ public final class GameEngine {
             }
         }
 
-        // Vérifier la victoire (hérisson)
         Decor decor = game.world().getGrid().get(gardenerPos);
         if (decor instanceof Hedgehog) {
             game.end(true); // Victoire immédiate

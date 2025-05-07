@@ -6,7 +6,7 @@ public class MapLevelSecondGarden extends MapLevel {
     private final static int width = 18;
     private final static int height = 8;
     private final MapEntity[][] level2 = {
-            // Colonnes 0-17
+
             {Tree,  Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree,    Tree}, // Ligne 0
             {Tree,  OpenedDoor,Grass,  Grass,   WaspNest,Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Tree}, // Ligne 1
             {Tree,  Grass,   Dirt,    Dirt,    Grass,   Grass,   HornetNest,Grass,  Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Grass,   Tree}, // Ligne 2
@@ -20,7 +20,7 @@ public class MapLevelSecondGarden extends MapLevel {
     public MapLevelSecondGarden() {
         super(width, height);
 
-        // Placement garantissant l'accessibilité
+
         set(1, 1, OpenedDoor);  // Porte de retour
         set(4, 1, WaspNest);    // Nid de guêpes
         set(6, 2, HornetNest);  // Nid de frelons
@@ -31,17 +31,17 @@ public class MapLevelSecondGarden extends MapLevel {
         set(4, 6, PoisonedApple); // Pomme empoisonnée
         set(15, 3, Flowers);    // Fleurs décoratives
 
-        // Bombes placées stratégiquement
+
         set(5, 1, InsectBomb);
         set(10, 2, InsectBomb);
 
-        // Remplissage intelligent
+
         for (int i = 0; i < width; i++) {
             for (int j = 0; j < height; j++) {
                 if (level2[j][i] != null) {
                     set(i, j, level2[j][i]);
                 } else {
-                    set(i, j, Grass); // Par défaut de l'herbe
+                    set(i, j, Grass);
                 }
             }
         }

@@ -10,19 +10,9 @@ import java.util.List;
 public class LevelState {
     private final Set<Position> collectedItems = new HashSet<>();
     private final List<Enemy> enemies = new ArrayList<>();
-
-    public void addCollectedItem(Position position) {
-        collectedItems.add(position);
-    }
-
     public Set<Position> getCollectedItems() {
         return collectedItems;
     }
-
-    public void addEnemy(Enemy enemy) {
-        enemies.add(enemy);
-    }
-
     public List<Enemy> getEnemies() {
         return new ArrayList<>(enemies);
     }

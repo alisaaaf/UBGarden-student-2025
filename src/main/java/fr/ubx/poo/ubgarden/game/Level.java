@@ -126,10 +126,8 @@ public class Level implements Map {
     }
 
     private void updateEnemiesFromState(LevelState state) {
-        // Clear existing enemies
         game.getEnemies().clear();
 
-        // Add enemies from state
         for (Enemy enemy : state.getEnemies()) {
             game.addEnemy(enemy);
         }
@@ -139,7 +137,6 @@ public class Level implements Map {
     public void applyState(LevelState state) {
         if (state == null) return;
 
-        // Clear existing collected items
         for (Position pos : collectedItems) {
             Decor decor = decors.get(pos);
             if (decor != null && decor.getBonus() != null) {
@@ -149,7 +146,7 @@ public class Level implements Map {
         }
         collectedItems.clear();
 
-        // Apply new state
+
         collectedItems.addAll(state.getCollectedItems());
         for (Position pos : collectedItems) {
             Decor decor = decors.get(pos);
@@ -159,7 +156,6 @@ public class Level implements Map {
             }
         }
 
-        // Update enemies
         game.getEnemies().clear();
         for (Enemy enemy : state.getEnemies()) {
             game.addEnemy(enemy);

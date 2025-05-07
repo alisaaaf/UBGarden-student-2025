@@ -16,7 +16,7 @@ public class Hedgehog extends Decor {
     @Override
     public void pickUpBy(Gardener gardener) {
         System.out.println("Hedgehog found! Victory!");
-        gardener.win(); // Appel direct à la victoire
+        gardener.win();
         this.remove();
     }
 }
